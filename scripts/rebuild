@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "==> Rebuilding opencode..."
+bun run --cwd packages/opencode build -- --single || {
+  echo "Build failed" >&2
+  exit 1
+}
+
+echo "==> Restarting server..."
+launchctl unload ~/Library/LaunchAgents/skycode.15b.it.plist
+launchctl load ~/Library/LaunchAgents/skycode.15b.it.plist
+
+echo "==> Done. Server restarted."
