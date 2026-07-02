@@ -54,6 +54,7 @@ export function fromRow(row: Row): Info {
     },
     sandboxes: row.sandboxes,
     commands: row.commands ?? undefined,
+    remotes: row.remotes ?? [],
   }
 }
 
@@ -129,6 +130,19 @@ const layer = Layer.effect(
       Effect.scoped,
       Effect.catch(() => Effect.succeed({ code: 1, text: "", stderr: "" } satisfies GitResult)),
     )
+
+    const readRemotes = Effect.fnUntraced(function* (worktree: string) {
+      const result = yield* git(["remote", "-v"], { cwd: worktree })
+      if (result.code !== 0) return [] as Array<{ name: string; url: string }>
+      return result.text
+        .trim()
+        .split("\n")
+        .filter((line) => line.includes("(fetch)"))
+        .map((line) => {
+          const [name, url] = line.split(/\s+/)
+          return { name, url }
+        })
+    })
 
     const emitUpdated = (data: Info) =>
       Effect.sync(() =>
@@ -227,6 +241,7 @@ const layer = Layer.effect(
             worktree,
             vcs: data.vcs?.type ?? fakeVcs,
             sandboxes: [] as string[],
+            remotes: [] as Array<{ name: string; url: string }>,
             time: { created: Date.now(), updated: Date.now() },
           }
 
@@ -253,6 +268,7 @@ const layer = Layer.effect(
           ),
         { concurrency: "unbounded" },
       ).pipe(Effect.map((arr) => arr.filter((x): x is string => x !== undefined)))
+      result.remotes = yield* readRemotes(result.worktree)
 
       yield* db
         .insert(ProjectTable)
@@ -269,6 +285,7 @@ const layer = Layer.effect(
           time_initialized: result.time.initialized,
           sandboxes: result.sandboxes.map((sandbox) => AbsolutePath.make(sandbox)),
           commands: result.commands,
+          remotes: result.remotes,
         })
         .onConflictDoUpdate({
           target: ProjectTable.id,
@@ -283,6 +300,7 @@ const layer = Layer.effect(
             time_initialized: result.time.initialized,
             sandboxes: result.sandboxes.map((sandbox) => AbsolutePath.make(sandbox)),
             commands: result.commands,
+            remotes: result.remotes,
           },
         })
         .run()

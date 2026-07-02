@@ -62,6 +62,7 @@ import { SessionContextUsage } from "@/components/session-context-usage"
 import { useDialog } from "@opencode-ai/ui/context/dialog"
 import { useLanguage } from "@/context/language"
 import { useSessionKey } from "@/pages/session/session-layout"
+import { useLayout } from "@/context/layout"
 import { useServerSDK } from "@/context/server-sdk"
 import { usePlatform } from "@/context/platform"
 import { useSettings } from "@/context/settings"
@@ -260,6 +261,7 @@ export function MessageTimeline(props: {
   const navigate = useNavigate()
   const serverSDK = useServerSDK()
   const sdk = useSDK()
+  const layout = useLayout()
   const sync = useSync()
   const settings = useSettings()
   const tabs = useTabs()
@@ -268,6 +270,12 @@ export function MessageTimeline(props: {
   const { params, sessionKey } = useSessionKey()
   const ownerSessionKey = sessionKey()
   const cached = timelineCache.get(ownerSessionKey)
+  const project = createMemo(() =>
+    layout.projects.list().find((p) => p.worktree === sdk().directory),
+  )
+  const remotes = createMemo(() =>
+    (project()?.remotes ?? []).filter((r) => r.name === "origin" || r.name === "upstream"),
+  )
   const initialMeasurements = cached?.measurements
   const coldBottomMount = !initialMeasurements?.length && props.shouldAnchorBottom()
   const platform = usePlatform()
@@ -1475,6 +1483,31 @@ export function MessageTimeline(props: {
                         Open
                       </a>
                     </dd>
+                    <Show when={remotes().length > 0}>
+                      <For each={remotes()}>
+                        {(remote) => {
+                          const href = () =>
+                            remote.url
+                              .replace(/^git@github\.com:/, "https://github.com/")
+                              .replace(/\.git$/, "")
+                          return (
+                            <>
+                              <dt class="text-text-faint">{remote.name}</dt>
+                              <dd>
+                                <a
+                                  href={href()}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="text-text-base hover:text-text-strong transition-colors underline underline-offset-2"
+                                >
+                                  {href().replace("https://github.com/", "")}
+                                </a>
+                              </dd>
+                            </>
+                          )
+                        }}
+                      </For>
+                    </Show>
                   </dl>
                 </div>
               </div>

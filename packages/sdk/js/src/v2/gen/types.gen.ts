@@ -1488,6 +1488,7 @@ export type GlobalEvent = {
           commands?: ProjectCommands
           time: ProjectTime
           sandboxes: Array<string>
+          remotes: Array<ProjectGitRemote>
         }
       }
     | {
@@ -2425,6 +2426,7 @@ export type Project = {
   commands?: ProjectCommands
   time: ProjectTime
   sandboxes: Array<string>
+  remotes: Array<ProjectGitRemote>
 }
 
 export type ProjectNotFoundError = {
@@ -3176,6 +3178,11 @@ export type ProjectTime = {
   created: number
   updated: number
   initialized?: number
+}
+
+export type ProjectGitRemote = {
+  name: string
+  url: string
 }
 
 export type EventServerInstanceDisposed = {
@@ -5902,6 +5909,7 @@ export type ProjectUpdated = {
     commands?: ProjectCommands
     time: ProjectTime
     sandboxes: Array<string>
+    remotes: Array<ProjectGitRemote>
   }
 }
 
@@ -6920,6 +6928,7 @@ export type EventProjectUpdated = {
     commands?: ProjectCommands
     time: ProjectTime
     sandboxes: Array<string>
+    remotes: Array<ProjectGitRemote>
   }
 }
 

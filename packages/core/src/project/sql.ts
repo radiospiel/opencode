@@ -15,6 +15,7 @@ export const ProjectTable = sqliteTable("project", {
   time_initialized: integer(),
   sandboxes: DatabasePath.absoluteArrayColumn().notNull(),
   commands: text({ mode: "json" }).$type<{ start?: string }>(),
+  remotes: text({ mode: "json" }).$type<Array<{ name: string; url: string }>>(),
 })
 
 export const ProjectDirectoryTable = sqliteTable(

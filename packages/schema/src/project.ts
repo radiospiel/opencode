@@ -28,6 +28,12 @@ export const Time = Schema.Struct({
 }).annotate({ identifier: "Project.Time" })
 export interface Time extends Schema.Schema.Type<typeof Time> {}
 
+export const GitRemote = Schema.Struct({
+  name: Schema.String,
+  url: Schema.String,
+}).annotate({ identifier: "Project.GitRemote" })
+export interface GitRemote extends Schema.Schema.Type<typeof GitRemote> {}
+
 export const Info = Schema.Struct({
   id: ID,
   worktree: Schema.String,
@@ -37,6 +43,7 @@ export const Info = Schema.Struct({
   commands: optional(Commands),
   time: Time,
   sandboxes: Schema.Array(Schema.String),
+  remotes: Schema.Array(GitRemote),
 }).annotate({ identifier: "Project" })
 export interface Info extends Schema.Schema.Type<typeof Info> {}
 

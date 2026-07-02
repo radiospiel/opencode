@@ -121,7 +121,8 @@ export default {
           \`time_updated\` integer NOT NULL,
           \`time_initialized\` integer,
           \`sandboxes\` text NOT NULL,
-          \`commands\` text
+          \`commands\` text,
+          \`remotes\` text
         );
       `)
       yield* tx.run(`

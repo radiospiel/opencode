@@ -83,6 +83,10 @@ import {
 import { ProjectDragOverlay, SortableProject, type ProjectSidebarContext } from "./layout/sidebar-project"
 import { SidebarContent } from "./layout/sidebar-shell"
 
+function mainRemotes(remotes: Array<{ name: string; url: string }> | undefined | null) {
+  return (remotes ?? []).filter((r) => r.name === "origin" || r.name === "upstream")
+}
+
 export default function LegacyLayout(props: ParentProps) {
   const serverSDK = useServerSDK()
   const [store, setStore, , ready] = persisted(
@@ -2028,6 +2032,28 @@ export default function LegacyLayout(props: ParentProps) {
                         {worktree().replace(homedir(), "~")}
                       </span>
                     </Tooltip>
+                    <Show when={project.remotes?.length}>
+                      <div class="flex flex-col gap-0.5 mt-0.5">
+                        <For each={mainRemotes(project.remotes)}>
+                          {(remote) => {
+                            const href = () =>
+                              remote.url
+                                .replace(/^git@github\.com:/, "https://github.com/")
+                                .replace(/\.git$/, "")
+                            return (
+                              <a
+                                href={href()}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-11-medium text-text-weak hover:text-text-base transition-colors truncate"
+                              >
+                                {remote.name}: {href().replace("https://github.com/", "")}
+                              </a>
+                            )
+                          }}
+                        </For>
+                      </div>
+                    </Show>
                   </div>
 
                   <DropdownMenu modal={!sidebarHovering()}>
