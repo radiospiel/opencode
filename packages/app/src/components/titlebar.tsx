@@ -714,6 +714,12 @@ function TitlebarUpdateIconButton(props: { state: TitlebarUpdatePillState }) {
 function ChannelIndicator() {
   return (
     <>
+      <a
+        href={location.origin}
+        class="text-[#FFF] font-medium px-2 rounded-sm uppercase font-mono hover:underline"
+      >
+        DEV.SKYCODE
+      </a>
       {["beta", "dev"].includes(import.meta.env.VITE_OPENCODE_CHANNEL) && (
         <div class="bg-icon-interactive-base text-[#FFF] font-medium px-2 rounded-sm uppercase font-mono">
           {import.meta.env.VITE_OPENCODE_CHANNEL.toUpperCase()}
